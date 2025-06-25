@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { lusitana } from '../fonts';
 // or provide the correct relative path, e.g.:
 // import { lusitana } from '../../ui/fonts';
-import { LatestInvoice } from '@/app/lib/definitions';
 import { fetchLatestInvoices } from '@/app/lib/data';
 export default async function LatestInvoices() {
   const latestInvoices = await fetchLatestInvoices();
