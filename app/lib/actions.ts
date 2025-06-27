@@ -4,6 +4,8 @@ import postgres from 'postgres';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { signIn } from '@/auth';
+import { AuthError } from 'next-auth';
 
 const FormSchema = z.object({
     id: z.string(),
@@ -18,6 +20,27 @@ const FormSchema = z.object({
     }),
     date: z.string(),
 });
+
+export async function authenticate(prevState: string | undefined, formData: FormData) {
+    try {
+        const credentials: Record<string, string> = {};
+        formData.forEach((value, key) => {
+            credentials[key] = value.toString();
+        });
+        await signIn("credentials", credentials);
+    } catch (error) {
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case 'CredentialsSignin':
+                    return 'Invalid credentials.';
+                default:
+                    return 'Something went wrong.';
+            }
+        }
+        throw error;
+    }
+}
+
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 
 export type State = {
